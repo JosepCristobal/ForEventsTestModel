@@ -21,9 +21,10 @@ router.post('/',  (req,res,next) => {
             url: 'https://ep01.epimg.net/cultura/imagenes/2016/12/01/actualidad/1480576411_932413_1480578681_noticia_normal.jpg',
             event: '5bdb5978e3acf52d7941259c'
         });
+        
         var insert = Media.insertMedia(media);
-
         var insertMedia = Event.insertMedia(insert.event,insert._id);
+        
         return res.json({succes: true, result: insert});     
     };
 });

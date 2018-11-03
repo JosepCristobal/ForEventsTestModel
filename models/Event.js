@@ -55,7 +55,6 @@ eventSchema.statics.insertMedia = function(eventId,mediaId){
                     // console.log('OK ' + success);
                  }
              });
-
 }
 
 
@@ -83,6 +82,16 @@ eventSchema.statics.nearMe = function(long, lat, distance_m){
     }});
 
     return distance.exec();
+}
+
+//Exists an id event?
+eventSchema.statics.existsId = function(eventId){
+    if (eventId.length === 24){
+        var exists = Event.count({_id: eventId}) ;
+        return exists.exec() 
+   } else{
+        throw new Error('The id must contain 24 characters!');
+    }
 }
 
 

@@ -12,13 +12,17 @@ var Schema = mongoose.Schema;
 router.get('/', async (req, res, next) => {
     try{
     const nombre = req.query.inserta;
-    if (nombre === "total"){
+    if (nombre === "total"){  
+        try{
+            var exists = await Event.existsId('5bdb5978e3acf52d7941250n');
+        }catch(error){
+            exists = 0;
+            //throw Error("No Valido");
+        }
         const list = await Event.list();
-        res.json({succes: true, result: list});
-    
+        res.json({succes: true, exists: exists, result: list});
     } else if(nombre === "distance"){
-       
-        const met = 14000 ;
+        const met = 1400 ;
         const lon =  1.995355 ;
         const lat = 41.789554 ;
         const list = await Event.nearMe(lon,lat,met);

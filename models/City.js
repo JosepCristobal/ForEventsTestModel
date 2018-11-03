@@ -2,6 +2,8 @@
 
 const mongoose = require('mongoose');
 const User = require('./User');
+const async = require('async');
+
 var Schema = mongoose.Schema;
 
 //first, we created the scheme
@@ -17,6 +19,50 @@ const citySchema = Schema({
     users: [{type: Schema.Types.ObjectId, ref: 'User'}]
 });
 citySchema.index({ "location": "2dsphere" });
+
+
+//List Cities containt partial word
+citySchema.statics.listCity = function(search){
+    let regex = new RegExp(search,'i');
+    const query = City.find({
+        $or: [
+           {'city': regex},
+           {'province': regex},
+           {'country': regex}
+        ]
+     })
+    return query.exec();
+}
+
+//Search Cities for proximity
+//long = longitude, lat = latitude, discance_m = distance in meters
+citySchema.statics.nearMe = function(long, lat, distance_m){
+    const distance =  City.find({ location: { $nearSphere: {
+         $geometry: {type: 'Point', coordinates: [long, lat]},
+     $maxDistance: distance_m }
+     }});
+ 
+     return distance.exec();
+ }
+
+//Insert New City
+citySchema.statics.insertCity = function(city){
+    city._id = new mongoose.Types.ObjectId();
+    city.save((err, citySaved)=> {
+    if (err){
+        next(err);
+        return (err);
+    } else {
+        try{
+            return citySaved;
+        } catch (err){
+            console.log(err);
+        }       
+    } 
+});
+ return city;
+}
+
 
 //Create model
 const City = mongoose.model('City', citySchema);
