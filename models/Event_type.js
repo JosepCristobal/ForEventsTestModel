@@ -52,7 +52,7 @@ event_typeSchema.statics.insertEvent = function(event_typeId, eventId){
                  if (error) {
                      console.log('KO' + error);
                  } else {
-                    console.log('OK ' + success);
+                    //console.log('OK ' + success);
                  }
              });
 }

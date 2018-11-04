@@ -6,6 +6,8 @@ const async = require('async');
 
 var Schema = mongoose.Schema;
 
+
+//first, we created the scheme
 const mediaSchema = Schema({
     _id: Schema.Types.ObjectId,
     name: {type: String, index: true},

@@ -7,6 +7,8 @@ const Transaction = require('./Transaction');
 const Event = require('./Event')
 var Schema = mongoose.Schema;
 
+
+//first, we created the scheme
 const userSchema = Schema({
     _id: Schema.Types.ObjectId,
     firstName: { type: String, index: true },

@@ -29,7 +29,11 @@ router.get('/', async (req, res, next) => {
         res.json({succes: true, result: list});
    
     } else {
-        res.send('Hello World 4events');
+       const filter = mainSearch(req)
+       console.log(filter)
+       const list = await Event.list(filter);
+        res.json({succes: true, result: list});
+        //res.send('Hello World 4events');
     }
 } catch (err){
     next(err);
@@ -64,5 +68,49 @@ router.post('/', (req,res,next) => {
         return res.json({succes: true, result: insert});     
     };
 });
+
+
+function mainSearch(req){
+
+    const begin_date = req.query.begin_date;
+    const end_date = req.query.end_date;
+    const city = req.query.city;
+    const zip_code = req.query.zip_code;
+    const province = req.query.province;
+    const country = req.query.country;
+    const indoor = req.query.indoor;
+    const free = req.query.free;
+    const price = req.query.price;
+    const min_age = req.query.min_age;
+    const active_event = req.query.active_event;
+
+    let filter = {};
+
+    if (active_event == undefined || active_event === 'true'){
+        const d = new Date();
+        const n = d.toISOString();
+        filter.end_date = {$gte: n};
+    };
+    if (begin_date){
+        //format date YYYY-MM-DD
+        const d = new Date(begin_date);
+        const n = d.toISOString();
+        filter.begin_date = {$gte: n};
+    };
+    if (end_date){
+        //format date YYYY-MM-DD
+        const d = new Date(begin_date);
+        const n = d.toISOString();
+        filter.end_date = {$lte: n};
+    };
+    if (city){
+        
+        //filter.city = { $regex: new RegExp(city, "ig") };
+        filter.city = {$regex: new RegExp('^' + city.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '$', 'i')};
+    };
+    console.log(filter)
+    return filter;
+    //const query = Event.find({end_date: {$gte: n}}).populate('organizer').populate('media');
+}
 
 module.exports = router;

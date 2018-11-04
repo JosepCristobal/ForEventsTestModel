@@ -7,6 +7,8 @@ const Transaction = require('./Transaction');
 const Media = require('./Media')
 var Schema = mongoose.Schema;
 
+
+//first, we created the scheme
 var eventSchema = Schema({
     _id: Schema.Types.ObjectId,
     begin_date: {type: Date, index: true},
@@ -39,7 +41,7 @@ eventSchema.index({ "location": "2dsphere" });
 
 
 //List of events whith limit date >= today
-eventSchema.statics.list = function(){
+eventSchema.statics.list0 = function(){
     var d = new Date();
     var n = d.toISOString();;
     const query = Event.find({end_date: {$gte: n}}).populate('organizer').populate('media');
@@ -94,6 +96,27 @@ eventSchema.statics.existsId = function(eventId){
    } else{
         throw new Error('The id must contain 24 characters!');
     }
+}
+
+// We create a static method to search for events
+// The search can be paged
+eventSchema.statics.list = function(filters,limit, skip, sort, fields){
+    //We build the query
+    const query = Event.find(filters);
+    query.limit (limit);
+    query.skip(skip);
+    query.sort(sort);
+    query.select(fields);
+// We execute the query and return a promise
+    return query.exec();
+}
+
+// We create a count of the total of events in the query
+eventSchema.statics.countTot = function(filters){
+
+const queryC = Event.count(filters);
+
+    return queryC.exec();
 }
 
 
