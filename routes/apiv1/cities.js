@@ -51,6 +51,14 @@ router.post('/',  (req,res,next) => {
         var insert = City.insertCity(city);
 
         return res.json({succes: true, result: insert});     
+    } else if (name === "2"){
+        try{
+            var insertUser = City.insertUser("5bddcd17e78c170bbcc27344","5bddcd17e78c170bbcc27344");
+            return res.json({succes: true, result: insert});
+        }catch (err){
+            return res.json({succes: false, result: "KO"});
+        };
+        
     };
 });
 

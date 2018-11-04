@@ -38,13 +38,15 @@ var eventSchema = Schema({
 eventSchema.index({ "location": "2dsphere" });
 
 
-//List of events whith limit
+//List of events whith limit date >= today
 eventSchema.statics.list = function(){
-    const query = Event.find().populate('organizer').populate('media');
+    var d = new Date();
+    var n = d.toISOString();;
+    const query = Event.find({end_date: {$gte: n}}).populate('organizer').populate('media');
 
     return query.exec();
 }
-//Update list of Media (Add)
+//Update list of Media (Add) when insert a new Media
 eventSchema.statics.insertMedia = function(eventId,mediaId){
     Event.findOneAndUpdate({_id: eventId}, 
             { $push: { media: mediaId } },

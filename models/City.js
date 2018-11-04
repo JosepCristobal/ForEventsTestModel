@@ -21,7 +21,7 @@ const citySchema = Schema({
 citySchema.index({ "location": "2dsphere" });
 
 
-//List Cities containt partial word
+//List Cities containt partial word in a city, province or country
 citySchema.statics.listCity = function(search){
     let regex = new RegExp(search,'i');
     const query = City.find({
@@ -62,6 +62,20 @@ citySchema.statics.insertCity = function(city){
 });
  return city;
 }
+
+//Update list of users (Add) when insert a new User
+citySchema.statics.insertUser = function(cityId,userId){
+    City.findOneAndUpdate({_id: cityId}, 
+            { $push: { users: userId } },
+           function (error, success) {
+                 if (error) {
+                     console.log('KO' + error);
+                 } else {
+                    //console.log('OK ' + success);
+                 }
+             });
+}
+
 
 
 //Create model
