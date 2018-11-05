@@ -15,15 +15,15 @@ var eventSchema = Schema({
     end_date: {type: Date, index: true},
     adress: String,
     city: {type: String, index: true},
-    zip_code: {type: String, index: true},
-    province: String,
-    country: String,
-    indoor: Boolean,
+    zip_code: String,
+    province: {type: String, index: true},
+    country: {type: String, index: true},
+    indoor: {type: Boolean, index: true},
     max_visitors: Number,
-    free: Boolean,
-    price: Number,
+    free:  {type: Boolean, index: true},
+    price: {type: Number, index: true},
     create_date: {type: Date, default: Date.now},
-    min_age: Number,
+    min_age:{type: Number, index: true},
     name: {type: String, index: true},
     description: String,
     user: [{type: Schema.Types.ObjectId, ref: 'User'}],
@@ -102,7 +102,7 @@ eventSchema.statics.existsId = function(eventId){
 // The search can be paged
 eventSchema.statics.list = function(filters,limit, skip, sort, fields){
     //We build the query
-    const query = Event.find(filters);
+    const query = Event.find(filters).populate('media');
     query.limit (limit);
     query.skip(skip);
     query.sort(sort);
