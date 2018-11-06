@@ -12,16 +12,23 @@ var Schema = mongoose.Schema;
 //List all events
 router.get('/', async (req, res, next) => {
     try{
-    const typeQuery = req.query.typeQuery;
-    if (typeQuery === "exists"){  
+    const nombre = req.query.inserta;
+    if (nombre === "total"){  
         try{
-            const queryId = req.query.queryId;
-            var exists = await Event.existsId(queryId);
-            res.json({succes: true, result: exists});
+            var exists = await Event.existsId('5bdb5978e3acf52d7941250n');
         }catch(error){
             exists = 0;
-            res.json({succes: true, result: exists});
+            //throw Error("No Valido");
         }
+        const list = await Event.list();
+        res.json({succes: true, exists: exists, result: list});
+    } else if(nombre === "distance"){
+        const met = 1400 ;
+        const lon =  1.995355 ;
+        const lat = 41.789554 ;
+        const list = await Event.nearMe(lon,lat,met);
+        res.json({succes: true, result: list});
+   
     } else {
         const limit = parseInt(req.query.limit);
         const skip = parseInt(req.query.skip);
@@ -32,23 +39,24 @@ router.get('/', async (req, res, next) => {
         const user = req.query.user;
         const event_type = req.query.event_type;
         const transaction = req.query.transaction;
+
         const filter = mainSearch(req);
         const list = await Event.list(filter,limit, skip, sort, fields, organizer, media, user, event_type, transaction);
         const rowsCount = await Event.countTot(filter)
-       
-        if (req.query.includeTotal === 'true'){
-        
+       if (req.query.includeTotal === 'true'){
+        //const rowsCount = await Event.countTot(filter)
         res.json({succes: true,total: rowsCount, result: list});
 
        }else{
 
         res.json({succes: true, result: list});
 
-       };   
+       };
+        
     }
-    } catch (err){
-        next(err);
-    }
+} catch (err){
+    next(err);
+}
 });
 
 //Insert an Event

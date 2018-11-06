@@ -100,13 +100,29 @@ eventSchema.statics.existsId = function(eventId){
 
 // We create a static method to search for events
 // The search can be paged
-eventSchema.statics.list = function(filters,limit, skip, sort, fields){
+eventSchema.statics.list = function(filters,limit, skip, sort, fields, organizer, media, user, event_type, transaction){
     //We build the query
-    const query = Event.find(filters).populate('media');
+    const query = Event.find(filters) ;//populate('media');
     query.limit (limit);
     query.skip(skip);
     query.sort(sort);
     query.select(fields);
+    if (organizer){
+        query.populate('organizer', organizer);
+    };
+    if (media){
+        query.populate('media', media);
+    };
+    if (user){
+        query.populate('user', user);
+    };
+    if (event_type){
+        query.populate('event_type', event_type);
+    }
+    if (transaction){
+        query.populate('transaction', transaction);
+    };
+
 // We execute the query and return a promise
     return query.exec();
 }
