@@ -46,6 +46,15 @@ userSchema.statics.allowedProfile = function(){
     return ['User', 'Organizer', 'Admin'];
 };
 
+//User profile
+userSchema.statics.userProfileS = function(userId, profile){
+    if (userId.length === 24){
+        var exists = User.count({_id: userId, profile: profile}) ;
+        return exists.exec() 
+   } else{
+        throw new Error('The id must contain 24 characters or not exists!');
+    }
+};
 //Insert New User
 userSchema.statics.insertUser = function(user){
     user._id = new mongoose.Types.ObjectId();

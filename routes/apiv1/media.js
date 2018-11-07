@@ -19,7 +19,7 @@ router.post('/',  (req,res,next) => {
             name: 'Fiesta 01',
             description: 'Concierto 2009',
             url: 'https://ep01.epimg.net/cultura/imagenes/2016/12/01/actualidad/1480576411_932413_1480578681_noticia_normal.jpg',
-            event: '5bdb5978e3acf52d7941259c'
+            event: '5be2d7a4d901700df9a18874'
         });
         
         var insert = Media.insertMedia(media);

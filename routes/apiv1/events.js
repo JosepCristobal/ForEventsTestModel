@@ -7,6 +7,7 @@ const Event = require('../../models/Event');
 const User = require('../../models/User');
 const mongoose = require('mongoose');
 const mainSearch = require('../../lib/searchEvents');
+const mainInsert = require('../../lib/insertEvents');
 var Schema = mongoose.Schema;
 
 //List all events
@@ -51,33 +52,66 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-//Insert an Event
-router.post('/', (req,res,next) => {
+//Insert a new Event
+router.post('/', async(req,res,next) => {
     //Create an Event in memory
-    const nombre = req.query.inserta;
-    if (nombre === "si"){
-        var event = new Event({
-            begin_date: '2018/10/30',
-            end_date: '2018/10/30',
-            adress: "Street la subida",
-            city: "La Segura",
-            province: "Toledo",
-            country: "Spain",
-            indoor: true,
-            max_visitors: 10000,
-            free: false,
-            price: 20,
-            min_age: 18,
-            description: "CATA DE VINOS GRAN RESERVA",
-            location: {type:'Point',
-                        coordinates: [1.838657, 41.785054]},
-            organizer: "5bdb5046280baa29fc4ab54d"
-                    });
-        var insert = Event.insertEvent(event);
+    const filter = mainInsert(req) 
 
-        return res.json({succes: true, result: insert});     
-    };
+    if (filter[0] != null){
+        return res.json({succes: false, result: filter[0]});
+       }else{
+        const valOrganizer = filter[1].organizer;
+        const exists = await User.userProfileS(valOrganizer.toString(), 'Organizer');
+        
+        if (exists === 1){
+            Event.insertEvent(filter[1], function (err, result){
+                if (err) return res.status(400).json(err);
+                // Event created
+                return res.status(200).json({ succes: true, message: 'Event_registered', data: result });
+           });
+        }else{
+            res.status(400).json({succes: false, message: 'Unauthorized user to manage events'});
+        };
+       };
+  });
+
+
+router.put('/:id', async (req,res, next) =>{
+    try{
+        const _id = req.params.id; 
+        const data = req.body;
+        console.log(data);
+        const eventUpdated = await Event.findOneAndUpdate({_id: _id}, data, {new:true}).exec();
+        res.json({success: true, result: eventUpdated});
+     } catch (err){
+         next(err);
+     }
 });
+
+router.delete('/:id', async (req,res, next) =>{
+    
+    const _id = req.params.id;
+    const profile = req.query.profile;
+    const organizer = req.query.organizer;
+if (_id && profile && organizer){
+    const exists = await User.userProfileS(organizer, profile);
+    if (exists === 1){
+        try{
+            await Event.deleteEvent({_id: _id });
+            return res.status(200).json({ succes: true, message: 'Event_deleted' });
+        }catch (err){
+            next(err);
+        }
+    }else {
+        res.status(400).json({succes: false, message: 'Unauthorized user to manage events'});
+    };
+
+}else{
+    res.status(400).json({succes: false, message: 'Incomplete data'});
+};
+    
+});
+
 
 
 module.exports = router;

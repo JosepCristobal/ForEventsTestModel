@@ -26,6 +26,7 @@ var eventSchema = Schema({
     min_age:{type: Number, index: true},
     name: {type: String, index: true},
     description: String,
+    deleted: {type: Date, index: true},
     user: [{type: Schema.Types.ObjectId, ref: 'User'}],
     organizer: {type: Schema.Types.ObjectId, ref: 'User'},
     event_type: {type: Schema.Types.ObjectId, ref: 'Event_type'},
@@ -40,14 +41,6 @@ var eventSchema = Schema({
 eventSchema.index({ "location": "2dsphere" });
 
 
-//List of events whith limit date >= today
-eventSchema.statics.list0 = function(){
-    var d = new Date();
-    var n = d.toISOString();;
-    const query = Event.find({end_date: {$gte: n}}).populate('organizer').populate('media');
-
-    return query.exec();
-}
 //Update list of Media (Add) when insert a new Media
 eventSchema.statics.insertMedia = function(eventId,mediaId){
     Event.findOneAndUpdate({_id: eventId}, 
@@ -56,42 +49,30 @@ eventSchema.statics.insertMedia = function(eventId,mediaId){
                  if (error) {
                      console.log('KO' + error);
                  } else {
-                    // console.log('OK ' + success);
+                   return success;
                  }
              });
 }
 
 
 //Insert New Event
-eventSchema.statics.insertEvent = function(event){
+eventSchema.statics.insertEvent = function(event,cb){
     event._id = new mongoose.Types.ObjectId();
    event.save((err, eventGuardado)=> {
     if (err){
-        next(err);
-        return (err);
+        return cb({ code: 500, ok: false, message: 'error_saving_data'}); 
     } else {
-        return eventGuardado;
+        return cb(null,eventGuardado);
     } 
 });
 
- return event;
 }
 
-//Search event for proximity
-//long = longitude, lat = latitude, discance_m = distance in meters
-eventSchema.statics.nearMe = function(long, lat, distance_m){
-   const distance =  Event.find({ location: { $nearSphere: {
-        $geometry: {type: 'Point', coordinates: [long, lat]},
-    $maxDistance: distance_m }
-    }});
-
-    return distance.exec();
-}
 
 //Exists an id event?
 eventSchema.statics.existsId = function(eventId){
     if (eventId.length === 24){
-        var exists = Event.count({_id: eventId}) ;
+        var exists = User.count({_id: eventId, deleted: null}) ;
         return exists.exec() 
    } else{
         throw new Error('The id must contain 24 characters!');
@@ -102,7 +83,7 @@ eventSchema.statics.existsId = function(eventId){
 // The search can be paged
 eventSchema.statics.list = function(filters,limit, skip, sort, fields, organizer, media, user, event_type, transaction){
     //We build the query
-    const query = Event.find(filters) ;//populate('media');
+    const query = Event.find(filters);
     query.limit (limit);
     query.skip(skip);
     query.sort(sort);
@@ -135,6 +116,11 @@ const queryC = Event.count(filters);
     return queryC.exec();
 }
 
+eventSchema.statics.deleteEvent = function(eventId){
+    console.log('event id: ' + eventId)
+    Event.remove({_id: eventId }).exec();
+
+};
 
 //Create model
 const Event = mongoose.model('Event', eventSchema);
