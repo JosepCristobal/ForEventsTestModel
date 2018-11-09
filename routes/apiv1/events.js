@@ -8,6 +8,7 @@ const User = require('../../models/User');
 const mongoose = require('mongoose');
 const mainSearch = require('../../lib/searchEvents');
 const mainInsert = require('../../lib/insertEvents');
+const mainUpdate = require('../../lib/updateEvents');
 var Schema = mongoose.Schema;
 
 //List all events
@@ -77,15 +78,20 @@ router.post('/', async(req,res,next) => {
 
 
 router.put('/:id', async (req,res, next) =>{
-    try{
-        const _id = req.params.id; 
-        const data = req.body;
-        console.log(data);
-        const eventUpdated = await Event.findOneAndUpdate({_id: _id}, data, {new:true}).exec();
-        res.json({success: true, result: eventUpdated});
-     } catch (err){
-         next(err);
-     }
+    const updateEvent = mainUpdate(req);
+    //console.log('Retorno del update: ' + updateEvent[1])
+    if (updateEvent[0] != null){
+        return res.status(400).json({succes: false, result: updateEvent[0]});
+       }else{
+        try{
+            const _id = req.params.id; 
+            const eventUpdated = await Event.findOneAndUpdate({_id: _id}, updateEvent[1], {new:true}).exec();
+            res.status(200).json({success: true, result: eventUpdated});
+         } catch (err){
+             next(err);
+         }
+       }
+   
 });
 
 router.delete('/:id', async (req,res, next) =>{
