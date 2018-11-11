@@ -25,7 +25,7 @@ router.post('/',  (req,res,next) => {
         var insert = Media.insertMedia(media);
         var insertMedia = Event.insertMedia(insert.event,insert._id);
         
-        return res.json({succes: true, result: insert});     
+        return res.json({ok: true, result: insert});     
     };
 });
 

@@ -19,10 +19,12 @@ router.post('/', (req,res,next) => {
         var event_type = new Event_type({
             name: 'Campeonato de atletismo pista cubierta',
         });
-        var insert =  Event_type.insertEvent_type(event_type)
-        var insert2 = Event_type.insertEvent('5bdf32c52550bf4c98761693', '5bdb5978e3acf52d7941259c' )
-            console.log(insert._id, insert2) 
-        return res.json({succes: true, result: insert});     
+        
+        Event_type.insertEvent_type(event_type, function(err, result){
+            if (err) return result.status(400).json(err);
+            // Event created
+            return res.status(200).json({ ok: true, message: 'Event_type_registered', data: result });
+        });   
     };
 });
 
@@ -31,10 +33,10 @@ router.get('/', async (req, res, next) => {
     const nombre = req.query.inserta;
     if (nombre === "total"){  
         const list = await Event_type.list();
-        res.json({succes: true, result: list});
+        res.json({ok: true, result: list});
     } else if(nombre === "id"){
         const list = await Event_type.list('5bdf2183792a22438c9abc77');
-        res.json({succes: true, result: list});
+        res.json({ok: true, result: list});
    
     } else {
         res.send('Hello World 4events');

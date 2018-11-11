@@ -23,7 +23,7 @@ router.post('/', (req,res,next) => {
                     });
         var insert = User.insertUser(user);
 
-        return res.json({succes: true, result: insert});     
+        return res.json({ok: true, result: insert});     
     };
 });
 

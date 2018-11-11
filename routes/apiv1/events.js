@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const mainSearch = require('../../lib/searchEvents');
 const mainInsert = require('../../lib/insertEvents');
 const mainUpdate = require('../../lib/updateEvents');
+const Event_type = require('../../models/Event_type');
 var Schema = mongoose.Schema;
 
 //List all events
@@ -19,10 +20,10 @@ router.get('/', async (req, res, next) => {
         try{
             const queryId = req.query.queryId;
             var exists = await Event.existsId(queryId);
-            res.json({succes: true, result: exists});
+            res.json({ok: true, result: exists});
         }catch(error){
             exists = 0;
-            res.json({succes: true, result: exists});
+            res.status(200).json({ok: true, result: exists});
         }
     } else {
         const limit = parseInt(req.query.limit);
@@ -35,16 +36,26 @@ router.get('/', async (req, res, next) => {
         const event_type = req.query.event_type;
         const transaction = req.query.transaction;
         const filter = mainSearch(req);
+        const event_typeName = req.query.event_typeName;
+        if (event_typeName){
+            const result = await Event_type.list(null,event_typeName);
+            if (result){
+                filter.event_type = result._id;
+            } else{
+                res.status(400).json({ok: false, message: 'Event Type not found'});
+            };
+            
+        };
         const list = await Event.list(filter,limit, skip, sort, fields, organizer, media, user, event_type, transaction);
         const rowsCount = await Event.countTot(filter)
        
         if (req.query.includeTotal === 'true'){
         
-        res.json({succes: true,total: rowsCount, result: list});
+        res.status(200).json({ok: true,total: rowsCount, result: list});
 
        }else{
 
-        res.json({succes: true, result: list});
+        res.status(200).json({ok: true, result: list});
 
        };   
     }
@@ -59,19 +70,36 @@ router.post('/', async(req,res,next) => {
     const filter = mainInsert(req) 
 
     if (filter[0] != null){
-        return res.json({succes: false, result: filter[0]});
+        return res.json({ok: false, result: filter[0]});
        }else{
         const valOrganizer = filter[1].organizer;
         const exists = await User.userProfileS(valOrganizer.toString(), 'Organizer');
         
+        //Only a Organizer rol can insert new events
         if (exists === 1){
             Event.insertEvent(filter[1], function (err, result){
                 if (err) return res.status(400).json(err);
                 // Event created
-                return res.status(200).json({ succes: true, message: 'Event_registered', data: result });
+                // We need assign event Id into collection event_type
+                const eventId = result._id;
+                const event_typeId = result.event_type;
+                if (eventId && event_typeId ){
+                Event_type.event_typeExists(event_typeId.toString(), function (err, resultType){
+                    if (resultType === 1){
+                        //(event_typeId, eventId)
+                        Event_type.insertEvent(event_typeId, eventId )
+                        return res.status(200).json({ ok: true, message: 'Event_registered', data: result });
+                    }else{
+                        res.status(400).json({ok: false, message: 'Event_type not found'});
+                    };    
+                });
+                
+                } else {
+                    res.status(400).json({ok: false, message: 'Event_type not found'});
+                };       
            });
         }else{
-            res.status(400).json({succes: false, message: 'Unauthorized user to manage events'});
+            res.status(400).json({ok: false, message: 'Unauthorized user to manage events'});
         };
        };
   });
@@ -79,45 +107,40 @@ router.post('/', async(req,res,next) => {
 
 router.put('/:id', async (req,res, next) =>{
     const updateEvent = mainUpdate(req);
-    //console.log('Retorno del update: ' + updateEvent[1])
+
     if (updateEvent[0] != null){
-        return res.status(400).json({succes: false, result: updateEvent[0]});
+        return res.status(400).json({ok: false, result: updateEvent[0]});
        }else{
         try{
             const _id = req.params.id; 
             const eventUpdated = await Event.findOneAndUpdate({_id: _id}, updateEvent[1], {new:true}).exec();
-            res.status(200).json({success: true, result: eventUpdated});
+            res.status(200).json({ok: true, result: eventUpdated});
          } catch (err){
              next(err);
          }
        }
-   
 });
 
 router.delete('/:id', async (req,res, next) =>{
-    
     const _id = req.params.id;
     const profile = req.query.profile;
     const organizer = req.query.organizer;
-if (_id && profile && organizer){
-    const exists = await User.userProfileS(organizer, profile);
-    if (exists === 1){
-        try{
-            await Event.deleteEvent({_id: _id });
-            return res.status(200).json({ succes: true, message: 'Event_deleted' });
-        }catch (err){
-            next(err);
-        }
-    }else {
-        res.status(400).json({succes: false, message: 'Unauthorized user to manage events'});
-    };
-
-}else{
-    res.status(400).json({succes: false, message: 'Incomplete data'});
+    if (_id && profile && organizer){
+        const exists = await User.userProfileS(organizer, profile);
+        if (exists === 1){
+            try{
+                await Event.deleteEvent({_id: _id });
+                return res.status(200).json({ ok: true, message: 'Event_deleted' });
+            }catch (err){
+                next(err);
+            }
+        }else {
+            res.status(400).json({ok: false, message: 'Unauthorized user to manage events'});
+        };
+    }else{
+    res.status(400).json({ok: false, message: 'Incomplete data'});
 };
     
 });
-
-
 
 module.exports = router;

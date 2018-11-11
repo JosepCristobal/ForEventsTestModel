@@ -17,66 +17,69 @@ const event_typeSchema = Schema({
 });
 
 
-//Insert New Event_type
-event_typeSchema.statics.insertEvent_type =  function(event_type){
+//Insert New Event_type with cb
+event_typeSchema.statics.insertEvent_type =  function(event_type, cb){
     event_type._id = new mongoose.Types.ObjectId();
-    try{
-        event_type.save()
-        return event_type;
-    } catch(err){
-        
-        return (err);
-    }
-    
-    /*event_type.save((err, event_typeSaved) => {
-    if (err){
-        next(err);
-        return (err);
-    } else {
-        try{
-            return event_typeSaved;
-        } catch (err){
-            console.log(err);
-        }       
-    } 
-});*/
-
- //return event_type;
+        event_type.save((err, event_typeSave) => {
+            if (err){
+                return cb({ code: 500, ok: false, message: 'error saving event_type'}); 
+            } else {
+                return cb(null,event_typeSave);
+            } 
+        });
 }
+//Static function to verify if the event_type exists
+event_typeSchema.statics.event_typeExists= function(eventTypeId, cb){
+    if (eventTypeId.length === 24){
+        var exists = Event_type.count({_id: eventTypeId}) ;
+        exists.exec ((err, existsNumber) =>{
+            if (err || exists === 0){
+                return cb(null,0)
+            } else {
+                return cb(null,existsNumber);
+            }
+        });
+   } else{
+        throw new Error('The id must contain 24 characters or not exists!');
+    }
+};
 
 //Update list of events (Add) when insert a new Event_type
-event_typeSchema.statics.insertEvent = function(event_typeId, eventId){
+event_typeSchema.statics.insertEvent = function(event_typeId, eventId, cb){
     Event_type.findOneAndUpdate({_id: event_typeId}, 
             { $push: { events: eventId } },
            function (error, success) {
                  if (error) {
-                     console.log('KO' + error);
-                 } else {
-                    //console.log('OK ' + success);
+                    return cb({ code: 500, ok: false, message: 'error saving event_type'}); 
+                } else {
+                    return cb(null,success);
                  }
              });
 }
 
 //Update list of favorite_searches (Add) when insert a new Event_type
-event_typeSchema.statics.insertFavorite_Search = function(event_typeId,favorite_searchesId){
+event_typeSchema.statics.insertFavorite_Search = function(event_typeId,favorite_searchesId,cb){
     Event_type.findOneAndUpdate({_id: event_typeId}, 
             { $push: { favorite_searches: favorite_searchesId } },
            function (error, success) {
                  if (error) {
-                     console.log('KO' + error);
-                 } else {
-                    //console.log('OK ' + success);
+                    return cb({ code: 500, ok: false, message: 'error saving event_type'}); 
+                } else {
+                    return cb(null,success);
                  }
              });
 }
 
 //List of Event_type all or filter to _id
-event_typeSchema.statics.list = function(event_typeID){
-    if (event_typeID == undefined){
+event_typeSchema.statics.list = function(event_typeID,name){
+    if(name){
+        const query = Event_type.findOne({'name': name});
+        return query;
+    } else if (event_typeID == undefined){
         const query = Event_type.find({});
         return query.exec();
     } else {
-        const query = Event_type.find({_id: event_typeID});
+        const query = Event_type.findOne({_id: event_typeID});
         return query.exec();
     };
 }

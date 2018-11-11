@@ -21,13 +21,13 @@ router.get('/', async (req, res, next) => {
             //throw Error("No Valido");
         }
         const list = await Event.list();
-        res.json({succes: true, exists: exists, result: list});
+        res.json({ok: true, exists: exists, result: list});
     } else if(nombre === "distance"){
         const met = 1400 ;
         const lon =  1.995355 ;
         const lat = 41.789554 ;
         const list = await Event.nearMe(lon,lat,met);
-        res.json({succes: true, result: list});
+        res.json({ok: true, result: list});
    
     } else {
         const limit = parseInt(req.query.limit);
@@ -45,11 +45,11 @@ router.get('/', async (req, res, next) => {
         const rowsCount = await Event.countTot(filter)
        if (req.query.includeTotal === 'true'){
         //const rowsCount = await Event.countTot(filter)
-        res.json({succes: true,total: rowsCount, result: list});
+        res.json({ok: true,total: rowsCount, result: list});
 
        }else{
 
-        res.json({succes: true, result: list});
+        res.json({ok: true, result: list});
 
        };
         
@@ -83,7 +83,7 @@ router.post('/', (req,res,next) => {
                     });
         var insert = Event.insertEvent(event);
 
-        return res.json({succes: true, result: insert});     
+        return res.json({ok: true, result: insert});     
     };
 });
 
