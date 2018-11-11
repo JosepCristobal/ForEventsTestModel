@@ -71,15 +71,39 @@ event_typeSchema.statics.insertFavorite_Search = function(event_typeId,favorite_
 }
 
 //List of Event_type all or filter to _id
-event_typeSchema.statics.list = function(event_typeID,name){
+event_typeSchema.statics.list = function(req){
+    const name = req.query.name;
+    const id = req.query.id;
+    const events = req.query.events;
+    const favorite_searches= req.query.favorite_searches;
+    
     if(name){
         const query = Event_type.findOne({'name': name});
-        return query;
-    } else if (event_typeID == undefined){
+        if(events){
+            query.populate('events', events);
+        };
+       if (favorite_searches){
+            query.populate('favorite_searches', favorite_searches);
+       };
+        return query.exec();
+    } else if (id == undefined){
         const query = Event_type.find({});
+        if(events){
+            query.populate('events', events);
+        };
+       if (favorite_searches){
+            query.populate('favorite_searches', favorite_searches);
+       };
+    
         return query.exec();
     } else {
         const query = Event_type.findOne({_id: event_typeID});
+        if(events){
+            query.populate('events', events);
+        };
+       if (favorite_searches){
+            query.populate('favorite_searches', favorite_searches);
+       };
         return query.exec();
     };
 }

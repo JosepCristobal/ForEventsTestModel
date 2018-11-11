@@ -25,7 +25,7 @@ var eventSchema = Schema({
     create_date: {type: Date, default: Date.now},
     min_age:{type: Number, index: true},
     name: {type: String, index: true},
-    description: String,
+    description: {type: String, index: true},
     deleted: {type: Date, index: true},
     user: [{type: Schema.Types.ObjectId, ref: 'User'}],
     organizer: {type: Schema.Types.ObjectId, ref: 'User'},

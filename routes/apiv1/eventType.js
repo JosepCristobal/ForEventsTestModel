@@ -15,13 +15,13 @@ var Schema = mongoose.Schema;
 // Insert New event_type
 router.post('/', (req,res,next) => {
     const name = req.query.name;
-    if (name === "yes"){
+    if (name){
         var event_type = new Event_type({
-            name: 'Campeonato de atletismo pista cubierta',
+            name: name
         });
         
         Event_type.insertEvent_type(event_type, function(err, result){
-            if (err) return result.status(400).json(err);
+            if (err) return result.status(400).json({ok: false, message: 'Error Event_type_NOT_registered', err});
             // Event created
             return res.status(200).json({ ok: true, message: 'Event_type_registered', data: result });
         });   
@@ -30,20 +30,26 @@ router.post('/', (req,res,next) => {
 
 router.get('/', async (req, res, next) => {
     try{
-    const nombre = req.query.inserta;
-    if (nombre === "total"){  
-        const list = await Event_type.list();
-        res.json({ok: true, result: list});
-    } else if(nombre === "id"){
-        const list = await Event_type.list('5bdf2183792a22438c9abc77');
-        res.json({ok: true, result: list});
+    // const name = req.query.name;
+    // const id = req.query.id;
+    const list = await Event_type.list(req);
+    res.status(200).json({ok: true, result: list});
+
+    //     res.json({ok: true, result: list});
+    // if (!name && !id){  
+    //     const list = await Event_type.list();
+    //     res.json({ok: true, result: list});
+    // } else if(name){
+    //     const list = await Event_type.list('',name);
+    //     res.status(200).json({ok: true, result: list});
    
-    } else {
-        res.send('Hello World 4events');
+    // } else {
+    //     const list = await Event_type.list(id);
+    //     res.status(200).json({ok: true, result: list});
+    // }
+    } catch (err){
+        next(err);
     }
-} catch (err){
-    next(err);
-}
 });
 
 
