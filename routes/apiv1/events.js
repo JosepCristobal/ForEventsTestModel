@@ -87,8 +87,12 @@ router.post('/', async(req,res,next) => {
                 Event_type.event_typeExists(event_typeId.toString(), function (err, resultType){
                     if (resultType === 1){
                         //(event_typeId, eventId)
-                        Event_type.insertEvent(event_typeId, eventId )
-                        return res.status(200).json({ ok: true, message: 'Event_registered', data: result });
+                        Event_type.insertEvent(event_typeId, eventId, function(err, resultInsert){
+                            if (err) return res.status(400).json(err);
+
+                            return res.status(200).json({ ok: true, message: 'Event_registered', data: result});
+                        });
+                       
                     }else{
                         res.status(400).json({ok: false, message: 'Event_type not found'});
                     };    
