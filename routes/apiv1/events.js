@@ -38,7 +38,8 @@ router.get('/', async (req, res, next) => {
         const filter = mainSearch(req);
         const event_typeName = req.query.event_typeName;
         if (event_typeName){
-            const result = await Event_type.list(null,event_typeName);
+            
+            const result = await Event_type.list(null, event_typeName);
             if (result){
                 filter.event_type = result._id;
             } else{
