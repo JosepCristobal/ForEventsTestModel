@@ -19,6 +19,14 @@ app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(function(req, res, next){
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
+  res.header("Access-Control-Max-Age", "3600");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Request");
+  next();
+});
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -33,7 +41,7 @@ app.use('/apiv1/events', require('./routes/apiv1/events'));
 app.use('/apiv1/users', require('./routes/apiv1/users'));
 app.use('/apiv1/media', require('./routes/apiv1/media'));
 app.use('/apiv1/cities', require('./routes/apiv1/cities'));
-app.use('/apiv1/eventType', require('./routes/apiv1/eventType'));
+app.use('/apiv1/eventTypes', require('./routes/apiv1/eventTypes'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

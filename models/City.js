@@ -12,6 +12,7 @@ const citySchema = Schema({
     city: {type: String, index: true},
     province: {type: String, index: true},
     country: {type: String, index: true},
+    zip_code: {type: String, index: true},
     location: {
         type: { type: String},
         coordinates: [Number]
