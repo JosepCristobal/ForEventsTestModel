@@ -67,7 +67,7 @@ router.post('/', (req,res,next) => {
         var event = new Event({
             begin_date: '2018/10/30',
             end_date: '2018/10/30',
-            adress: "Street la subida",
+            address: "Street la subida",
             city: "La Segura",
             province: "Toledo",
             country: "Spain",
