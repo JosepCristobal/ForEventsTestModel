@@ -102,16 +102,12 @@ router.post('/insertCities', async (req, res, next) => {
             return (err);
         }
         async.each(data.cities, (function(item) {
-            var zipCode = item.zip_code
-            if (!zipCode){
-                zipCode = "00000"
-            }
             var city = new City({
                 _id: new mongoose.Types.ObjectId(),
                 city: item.city,
                 province: item.province,
                 country: item.country,
-                zip_code: zipCode,
+                zip_code: item.zip_code,
                 location: {
                     type: 'Point',
                     coordinates: [item.longitude, item.latitude]
