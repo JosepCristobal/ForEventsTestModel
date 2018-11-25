@@ -24,23 +24,16 @@ mediaSchema.statics.allowedTags = function(){
 };
 
 //Insert New Media
-mediaSchema.statics.insertMedia = function(media){
+mediaSchema.statics.insertMedia = function(media,cb){
     media._id = new mongoose.Types.ObjectId();
     media.save((err, mediaSaved)=> {
-    if (err){
-        next(err);
-        return (err);
+    if (err) {
+        return cb({ code: 500, ok: false, message: 'error saving Media'}); 
     } else {
-        try{
-            return mediaSaved;
-        } catch (err){
-            console.log(err);
-        }
-        
-    } 
+        return cb(null,mediaSaved);
+    }
+    
 });
-
- return media;
 }
 
 
