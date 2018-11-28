@@ -71,6 +71,30 @@ userSchema.statics.insertUser = function(user){
 }
 
 
+userSchema.statics.insertFavorite_search = function(userId, favoriteId, cb){
+    User.findOneAndUpdate({_id: userId}, 
+            { $push: { favorite_searches: favoriteId} },
+           function (error, success) {
+                 if (error) {
+                    return cb({ code: 400, ok: false, message: 'error_saving_data'}); 
+                } else {
+                    return cb(null,success);
+                 }
+             });
+}
+userSchema.statics.deleteFavorite_search = function(userId, favoriteId, cb){
+    User.findOneAndUpdate({_id: userId}, 
+            { $pull: { favorite_searches: favoriteId}}, {safe: true, upsert: true},
+           function (error, success) {
+                 if (error) {
+                    return cb({ code: 400, ok: false, message: 'error_deleting_data'}); 
+                } else {
+                    return cb(null,success);
+                 }
+             });
+}
+
+
 var User = mongoose.model('User', userSchema);
 
 //JCM
