@@ -94,6 +94,40 @@ userSchema.statics.deleteFavorite_search = function(userId, favoriteId, cb){
              });
 }
 
+userSchema.statics.getList = function (filters, limit, skip, sort, fields, includeTotal, cb) {
+
+
+    //filters = {};
+    const query = User.find(filters)
+    query.limit(limit);
+    query.skip(skip);
+    query.sort(sort);
+    query.select(fields);
+    query.populate({ path: 'city', match: { province: { $regex: new RegExp('mad', "ig") } } });
+
+    //query.populate({ path: 'city', match: { province: { $regex: new RegExp('mad', "ig") } } });
+
+    //console.log(filters);
+    return query.exec(function (err, rows) {
+        if (err) return cb(err);
+
+        const result = {
+            rows: rows,
+        };
+
+        if (!includeTotal) return cb(null, result);
+
+        // incluir propiedad total
+        User.countDocuments(filters, (err, total) => {
+            if (err) return cb(err);
+            result.total = total;
+            return cb(null, result);
+        });
+    });
+}
+
+
+
 
 var User = mongoose.model('User', userSchema);
 

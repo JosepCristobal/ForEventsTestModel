@@ -103,4 +103,74 @@ router.delete('/:id', async (req,res, next) =>{
     
 });
 
+router.get('/push', async (req, res, next) => {
+    var users = [];
+    const newEvent = req.query.newEvent;
+
+    const usuarios = User.find().cursor().eachAsync( async function(user){    
+        const favorites = user.favorite_searches;
+        if (favorites.length >0){
+            favorites.forEach( async function (filterResult){
+                const filterquery = {};
+                filterquery._id = filterResult;
+                Favorite_search.findOne(filterquery, async function(err, resultFilter){
+                    if (err) return res.status(400).json({ok: true, result: err});
+                    //res.status(200).json({ok: true, result: result});
+                   // const result2 = resultado[0].toObject();
+                    console.log('Antes' + resultFilter.query);
+                    var json = resultFilter.query.replace(/\'/g, ' ');
+                    json = resultFilter.query.replace(/"/g, ' ');
+
+                    console.log('despues' + json);
+                    console.log('Json: ' + JSON.parse(resultFilter.query));
+                    //console.log('Json: ' + json);
+                    const filter = JSON.parse(json);
+                    //console.log('Parse: ' + filter);
+                    try{
+                        const resultEvent = await Event.find(filter);
+                            console.log('Event: ' + resultEvent);
+                    }catch(err) {
+                        res.status(400).json({ok: false, result: err});
+                    }
+                  
+                    //console.log('Event: ' + filter);
+                    console.log('LQR: ' + resultFilter.query);
+                    // var userMap = {};
+                   
+                    // users.forEach(function(user) {
+                    //   userMap[user._id] = user;
+                    // });
+                
+                    //users.push(resultado)
+                });
+                // listasR = await Favorite_search.list(filterquery,1000,0,'','-query');
+                //const newList = new Favorite_search(listasR.favorite_searches.name);
+                //const mirest.json({ok: true, result: listasR});
+                //res.status(200).json({ok: true, result: listasR});
+                //console.log('LQR: ' + listasR.name);
+                //console.log('NQ: ' + user);
+                //users.push(listasR);
+                //res.status(200).json({ok: true, result: listasR});
+                //console.log('filter: ' + filter);
+            });
+            //res.status(200).json({ok: true, result: usuarios});
+        }
+        
+    });
+    //res.status(200).json({ok: true, result: users});
+    
+
+
+    //console.log(resultado);
+    /*await Favorite_search.find().cursor().eachAsync(async function(favorite){
+        var filter = JSON.parse(favorite.query) ;
+        filter._id = _id;
+        await Event.list(filter, , , ,'')
+    });*/
+    //next()
+});
+
+
+
+
 module.exports = router;

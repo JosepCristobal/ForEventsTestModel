@@ -72,7 +72,7 @@ favorite_searchSchema.statics.deleteFavorite_Search = function(_id){
 }*/
 
 //Create model
-const Favorite_search = mongoose.model('Favoritesearch', favorite_searchSchema);
+const Favorite_search = mongoose.model('Favorite_search', favorite_searchSchema);
 
 //and export model
 module.exports = Favorite_search;
