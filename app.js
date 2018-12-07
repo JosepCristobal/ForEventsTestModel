@@ -43,6 +43,7 @@ app.use('/apiv1/media', require('./routes/apiv1/media'));
 app.use('/apiv1/cities', require('./routes/apiv1/cities'));
 app.use('/apiv1/eventTypes', require('./routes/apiv1/eventTypes'));
 app.use('/apiv1/favoriteSearches', require('./routes/apiv1/favoriteSearches'));
+app.use('/apiv1/queryFavorite', require('./routes/apiv1/queryFavorite'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
